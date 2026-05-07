@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SALUX — Pastillero Electrónico v9.3</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(to bottom, #f0fdfa, #ffffff);
+      color: #1e293b;
+      line-height: 1.6;
+    }
+
+    /* ── Header ── */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #0d9488, #059669, #0891b2);
+      color: #fff;
+      text-align: center;
+      padding: 3rem 1rem;
+    }
+    .hero::before, .hero::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: .12;
+    }
+    .hero::before { width: 300px; height: 300px; background: #fff; top: -60px; left: -40px; }
+    .hero::after  { width: 400px; height: 400px; background: #67e8f9; bottom: -80px; right: -60px; }
+    .hero-content { position: relative; max-width: 720px; margin: auto; }
+    .badge {
+      display: inline-block;
+      padding: 4px 14px;
+      border: 1px solid rgba(255,255,255,.3);
+      border-radius: 999px;
+      font-size: .85rem;
+      margin-bottom: .75rem;
+      background: rgba(255,255,255,.12);
+    }
+    .hero h1 { font-size: 3rem; font-weight: 800; letter-spacing: -.02em; margin-bottom: .25rem; }
+    .hero h2 { font-size: 1.35rem; font-weight: 300; color: #a7f3d0; margin-bottom: .5rem; }
+    .hero p  { font-size: .92rem; color: #bbf7d0; max-width: 600px; margin: auto 0 1.25rem; }
+    .tags { display: flex; flex-wrap: wrap; justify-content: center; gap: .45rem; }
+    .tags span {
+      padding: 3px 12px;
+      border: 1px solid rgba(255,255,255,.35);
+      border-radius: 999px;
+      font-size: .78rem;
+    }
+
+    /* ── Layout ── */
+    .container { max-width: 960px; margin: auto; padding: 2rem 1rem; }
+
+    /* ── Tabs ── */
+    .tabs-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 1.5rem;
+    }
+    .tab-btn {
+      padding: 10px 6px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      background: #fff;
+      font-size: .88rem;
+      font-weight: 600;
+      color: #64748b;
+      cursor: pointer;
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .tab-btn:hover { border-color: #0d9488; color: #0d9488; }
+    .tab-btn.active { background: #0d9488; border-color: #0d9488; color: #fff; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Card ── */
+    .card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: .35rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-sub { font-size: .88rem; color: #64748b; margin-bottom: 1rem; }
+
+    /* ── Diagram SVG ── */
+    .svg-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .svg-wrap svg { width: 100%; min-width: 680px; }
+
+    /* ── Component Grid ── */
+    .comp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem; }
+    .comp-card {
+      background: #fff;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.25rem;
+      transition: box-shadow .2s;
+    }
+    .comp-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+    .comp-head { display: flex; align-items: center; gap: .65rem; margin-bottom: .6rem; }
+    .comp-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; }
+    .comp-head h3 { font-size: .95rem; font-weight: 700; }
+    .comp-card p { font-size: .84rem; color: #64748b; margin-bottom: .7rem; }
+    .spec { display: flex; align-items: flex-start; gap: 6px; font-size: .82rem; margin-bottom: 3px; }
+    .spec .dot { color: #10b981; margin-top: 2px; }
+
+    /* ── Energy Section ── */
+    .energy-hero {
+      background: linear-gradient(135deg, #f0fdfa, #ecfdf5);
+      border: 2px solid #99f6e4;
+      border-radius: 14px;
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .energy-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1.25rem; }
+    .energy-box {
+      background: #fff;
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+    .energy-box.pro { border: 2px solid #99f6e4; }
+    .energy-box.con { border: 2px solid #fecaca; }
+    .energy-box h3 { font-size: 1rem; font-weight: 700; margin-bottom: .75rem; display: flex; align-items: center; gap: 6px; }
+    .energy-box ul { list-style: none; }
+    .energy-box li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: .84rem;
+      margin-bottom: .85rem;
+    }
+    .energy-box li strong { color: #334155; }
+    .energy-box li p { font-size: .82rem; color: #64748b; margin-top: 3px; }
+    .energy-conclusion {
+      background: linear-gradient(135deg, #059669, #0d9488);
+      color: #fff;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-top: 1.25rem;
+    }
+    .energy-conclusion h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: .5rem; }
+    .energy-conclusion p { font-size: .88rem; line-height: 1.7; }
+
+    /* ── Comparison Table ── */
+    table.cmp {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .84rem;
+    }
+    table.cmp th {
+      text-align: left;
+      padding: 10px 12px;
+      font-weight: 600;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    table.cmp th:nth-child(2) { text-align: center; color: #0f766e; }
+    table.cmp th:nth-child(3) { text-align: center; color: #dc2626; }
+    table.cmp td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    table.cmp tr:nth-child(even) { background: #f8fafc; }
+    table.cmp td:nth-child(2) { text-align: center; color: #0f766e; }
+    table.cmp td:nth-child(3) { text-align: center; color: #dc2626; }
+
+    /* ── Code Section ── */
+    .lib-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .7rem; margin-bottom: 1.5rem; }
+    .lib-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: .7rem .85rem;
+    }
+    .lib-card code { font-size: .85rem; color: #0f766e; font-weight: 600; }
+    .lib-card p { font-size: .78rem; color: #64748b; margin-top: 2px; }
+    .state-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: .7rem; margin-bottom: 1.5rem; }
+    .state-card {
+      background: #eef2ff;
+      border: 1px solid #c7d2fe;
+      border-radius: 8px;
+      padding: .65rem .85rem;
+    }
+    .state-card code { font-size: .8rem; color: #4338ca; font-weight: 600; }
+    .state-card p { font-size: .78rem; color: #64748b; margin-top: 2px; }
+    .pin-table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+    .pin-table th { text-align: left; padding: 8px 10px; font-weight: 600; border-bottom: 2px solid #e2e8f0; }
+    .pin-table td { padding: 7px 10px; border-bottom: 1px solid #f1f5f9; }
+    .pin-table tr:nth-child(even) { background: #f8fafc; }
+    .pin-table .mono { font-family: 'Courier New', monospace; font-weight: 600; color: #0f766e; }
+    .pin-table .mode-badge {
+      display: inline-block;
+      padding: 1px 8px;
+      background: #f1f5f9;
+      border-radius: 4px;
+      font-size: .78rem;
+      color: #475569;
+    }
+    hr.sep { border: none; border-top: 1px solid #e2e8f0; margin: 1.5rem 0; }
+
+    /* ── Accordion ── */
+    .acc-item { border: 1px solid #e2e8f0; border-radius: 10px; margin-bottom: .6rem; overflow: hidden; }
+    .acc-btn {
+      width: 100%;
+      padding: 12px 16px;
+      border: none;
+      background: #f8fafc;
+      font-size: .88rem;
+      font-weight: 600;
+      color: #334155;
+      cursor: pointer;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .acc-btn::after { content: '+'; font-size: 1.1rem; transition: transform .2s; color: #94a3b8; }
+    .acc-btn.open::after { content: '−'; }
+    .acc-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .3s ease;
+    }
+    .acc-body.open { max-height: 400px; }
+    .acc-body-inner { padding: .75rem 1rem; font-size: .84rem; color: #64748b; line-height: 1.7; }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid #e2e8f0;
+      text-align: center;
+      padding: 1.5rem 1rem;
+      margin-top: 2rem;
+      font-size: .82rem;
+      color: #94a3b8;
+    }
+    footer strong { color: #64748b; }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 2.2rem; }
+      .tabs-bar { grid-template-columns: repeat(2, 1fr); }
+      .energy-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════ HERO ═══════════ -->
+<header class="hero">
+  <div class="hero-content">
+    <div class="badge">Proyecto de Electrónica Aplicada</div>
+    <h1>SALUX</h1>
+    <h2>Pastillero Electrónico Inteligente</h2>
+    <p>Sistema de recordatorio de medicamentos programable con pantalla OLED, reloj en tiempo real,
+       7 alarmas configurables, LEDs indicadores y zumbador de alerta. Controlado por Arduino Pro Mini
+       con alimentación constante para máxima confiabilidad.</p>
+    <div class="tags">
+      <span>Arduino Pro Mini</span>
+      <span>RTC DS3231</span>
+      <span>OLED SSD1306</span>
+      <span>NeoPixel WS2812B</span>
+      <span>v9.3</span>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════ CONTENIDO ═══════════ -->
+<div class="container">
+
+  <!-- Tabs -->
+  <div class="tabs-bar">
+    <button class="tab-btn active" onclick="openTab('diagrama')">&#9881; Diagrama</button>
+    <button class="tab-btn" onclick="openTab('componentes')">&#9889; Componentes</button>
+    <button class="tab-btn" onclick="openTab('energia')">&#128268; Energía</button>
+    <button class="tab-btn" onclick="openTab('codigo')">&#128190; Código</button>
+  </div>
+
+  <!-- ══════ TAB 1 : DIAGRAMA ══════ -->
+  <div id="tab-diagrama" class="tab-panel active">
+    <div class="card">
+      <div class="card-title">&#9881; Diagrama Eléctrico Completo</div>
+      <div class="card-sub">Conexiones entre todos los componentes del Salux. El bus I2C es compartido entre RTC y OLED.
+        Todos los componentes comparten GND común. La fuente proporciona 5V y 3.3V según necesidad.</div>
+      <div class="svg-wrap">
+        <svg viewBox="0 0 1000 720" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="aR" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+              <polygon points="0 0,8 3,0 6" fill="#0ea5e9"/>
+            </marker>
+            <marker id="aG" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+              <polygon points="0 0,8 3,0 6" fill="#22c55e"/>
+            </marker>
+            <marker id="aO" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+              <polygon points="0 0,8 3,0 6" fill="#f59e0b"/>
+            </marker>
+            <marker id="aP" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+              <polygon points="0 0,8 3,0 6" fill="#a855f7"/>
+            </marker>
+            <filter id="sh"><feDropShadow dx="1" dy="2" stdDeviation="3" flood-opacity=".12"/></filter>
+            <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f0f9ff"/><stop offset="100%" stop-color="#fff"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Fondo -->
+          <rect width="1000" height="720" fill="url(#bg)" rx="12"/>
+          <rect x="1" y="1" width="998" height="718" fill="none" stroke="#e2e8f0" stroke-width="2" rx="12"/>
+          <text x="500" y="35" text-anchor="middle" font-size="17" font-weight="bold" fill="#0f172a">DIAGRAMA ELÉCTRICO — SALUX Pastillero Electrónico v9.3</text>
+          <line x1="200" y1="45" x2="800" y2="45" stroke="#cbd5e1"/>
+
+          <!-- ── FUENTE ── -->
+          <rect x="30" y="70" width="200" height="110" rx="10" fill="#fef3c7" stroke="#f59e0b" stroke-width="2" filter="url(#sh)"/>
+          <text x="130" y="95" text-anchor="middle" font-size="12" font-weight="bold" fill="#92400e">&#9889; FUENTE DE ALIMENTACIÓN</text>
+          <rect x="50" y="105" width="160" height="28" rx="5" fill="#fffbeb" stroke="#fbbf24"/>
+          <text x="130" y="124" text-anchor="middle" font-size="11" fill="#78350f">Módulo Conexión USB</text>
+          <text x="130" y="148" text-anchor="middle" font-size="10" fill="#a16207">Salida: 5V / 3.3V</text>
+          <text x="130" y="165" text-anchor="middle" font-size="10" fill="#a16207">Corriente constante</text>
+
+          <!-- ── SWITCH ── -->
+          <rect x="30" y="210" width="200" height="65" rx="10" fill="#fce7f3" stroke="#ec4899" stroke-width="2" filter="url(#sh)"/>
+          <text x="130" y="235" text-anchor="middle" font-size="12" font-weight="bold" fill="#9d174d">&#128421; SWITCH DE ENCENDIDO</text>
+          <text x="130" y="255" text-anchor="middle" font-size="10" fill="#be185d">Corta / Restablece energía</text>
+          <text x="130" y="268" text-anchor="middle" font-size="9" fill="#be185d">Conectado en serie con VCC</text>
+
+          <!-- Línea Fuente → Switch -->
+          <line x1="130" y1="180" x2="130" y2="210" stroke="#f59e0b" stroke-width="2" marker-end="url(#aO)"/>
+          <text x="145" y="198" font-size="9" fill="#f59e0b" font-weight="bold">VCC +5V</text>
+
+          <!-- ── ARDUINO PRO MINI ── -->
+          <rect x="330" y="70" width="280" height="240" rx="10" fill="#dbeafe" stroke="#3b82f6" stroke-width="2" filter="url(#sh)"/>
+          <text x="470" y="95" text-anchor="middle" font-size="13" font-weight="bold" fill="#1e3a8a">&#11036; ARDUINO PRO MINI</text>
+          <text x="470" y="112" text-anchor="middle" font-size="10" fill="#1e40af">ATmega328P — Microcontrolador principal</text>
+
+          <rect x="345" y="125" width="110" height="22" rx="4" fill="#eff6ff" stroke="#93c5fd"/>
+          <text x="400" y="140" text-anchor="middle" font-size="10" fill="#1e3a8a" font-weight="bold">D2 → Botón DN</text>
+          <rect x="345" y="152" width="110" height="22" rx="4" fill="#eff6ff" stroke="#93c5fd"/>
+          <text x="400" y="167" text-anchor="middle" font-size="10" fill="#1e3a8a" font-weight="bold">D3 → Botón UP</text>
+          <rect x="345" y="179" width="110" height="22" rx="4" fill="#eff6ff" stroke="#93c5fd"/>
+          <text x="400" y="194" text-anchor="middle" font-size="10" fill="#1e3a8a" font-weight="bold">D5 → Botón OK</text>
+          <rect x="345" y="206" width="110" height="22" rx="4" fill="#eff6ff" stroke="#93c5fd"/>
+          <text x="400" y="221" text-anchor="middle" font-size="10" fill="#1e3a8a" font-weight="bold">D7 → Buzzer</text>
+          <rect x="345" y="233" width="110" height="22" rx="4" fill="#eff6ff" stroke="#93c5fd"/>
+          <text x="400" y="248" text-anchor="middle" font-size="10" fill="#1e3a8a" font-weight="bold">D8 → NeoPixel</text>
+
+          <rect x="470" y="125" width="125" height="22" rx="4" fill="#eff6ff" stroke="#93c5fd"/>
+          <text x="533" y="140" text-anchor="middle" font-size="10" fill="#1e3a8a" font-weight="bold">A4 (SDA) → I2C</text>
+          <rect x="470" y="152" width="125" height="22" rx="4" fill="#eff6ff" stroke="#93c5fd"/>
+          <text x="533" y="167" text-anchor="middle" font-size="10" fill="#1e3a8a" font-weight="bold">A5 (SCL) → I2C</text>
+
+          <rect x="345" y="275" width="55" height="20" rx="4" fill="#dc2626" opacity=".15" stroke="#dc2626"/>
+          <text x="373" y="289" text-anchor="middle" font-size="9" fill="#dc2626" font-weight="bold">VCC 5V</text>
+          <rect x="410" y="275" width="55" height="20" rx="4" fill="#171717" opacity=".15" stroke="#171717"/>
+          <text x="438" y="289" text-anchor="middle" font-size="9" fill="#171717" font-weight="bold">GND</text>
+
+          <!-- Línea Switch → Arduino VCC -->
+          <line x1="130" y1="275" x2="130" y2="300" stroke="#f59e0b" stroke-width="2"/>
+          <line x1="130" y1="300" x2="345" y2="300" stroke="#f59e0b" stroke-width="2"/>
+          <line x1="345" y1="300" x2="345" y2="285" stroke="#f59e0b" stroke-width="2" marker-end="url(#aO)"/>
+          <text x="230" y="316" font-size="9" fill="#f59e0b" font-weight="bold">+5V (vía switch)</text>
+
+          <!-- ── RTC DS3231 ── -->
+          <rect x="680" y="70" width="280" height="100" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="2" filter="url(#sh)"/>
+          <text x="820" y="95" text-anchor="middle" font-size="12" font-weight="bold" fill="#14532d">&#128339; RTC DS3231</text>
+          <text x="820" y="112" text-anchor="middle" font-size="10" fill="#166534">Reloj de Tiempo Real — Módulo I2C</text>
+          <rect x="700" y="122" width="80" height="20" rx="4" fill="#dcfce7" stroke="#86efac"/>
+          <text x="740" y="136" text-anchor="middle" font-size="9" fill="#14532d" font-weight="bold">SDA → A4</text>
+          <rect x="790" y="122" width="80" height="20" rx="4" fill="#dcfce7" stroke="#86efac"/>
+          <text x="830" y="136" text-anchor="middle" font-size="9" fill="#14532d" font-weight="bold">SCL → A5</text>
+          <rect x="700" y="148" width="55" height="16" rx="3" fill="#dcfce7" stroke="#86efac"/>
+          <text x="728" y="159" text-anchor="middle" font-size="8" fill="#14532d" font-weight="bold">VCC</text>
+          <rect x="765" y="148" width="55" height="16" rx="3" fill="#dcfce7" stroke="#86efac"/>
+          <text x="793" y="159" text-anchor="middle" font-size="8" fill="#14532d" font-weight="bold">GND</text>
+
+          <line x1="595" y1="136" x2="680" y2="132" stroke="#22c55e" stroke-width="2" marker-end="url(#aG)"/>
+          <text x="635" y="126" font-size="9" fill="#22c55e" font-weight="bold">SDA</text>
+          <line x1="595" y1="163" x2="680" y2="145" stroke="#22c55e" stroke-width="2" marker-end="url(#aG)"/>
+          <text x="635" y="165" font-size="9" fill="#22c55e" font-weight="bold">SCL</text>
+
+          <!-- ── OLED SSD1306 ── -->
+          <rect x="680" y="195" width="280" height="100" rx="10" fill="#faf5ff" stroke="#a855f7" stroke-width="2" filter="url(#sh)"/>
+          <text x="820" y="220" text-anchor="middle" font-size="12" font-weight="bold" fill="#581c87">&#128250; OLED 0.96&quot; SSD1306</text>
+          <text x="820" y="237" text-anchor="middle" font-size="10" fill="#6b21a8">128×64 I2C — Pantalla de visualización</text>
+          <rect x="700" y="248" width="80" height="20" rx="4" fill="#f3e8ff" stroke="#c084fc"/>
+          <text x="740" y="262" text-anchor="middle" font-size="9" fill="#581c87" font-weight="bold">SDA → A4</text>
+          <rect x="790" y="248" width="80" height="20" rx="4" fill="#f3e8ff" stroke="#c084fc"/>
+          <text x="830" y="262" text-anchor="middle" font-size="9" fill="#581c87" font-weight="bold">SCL → A5</text>
+
+          <rect x="690" y="310" width="260" height="22" rx="5" fill="#fefce8" stroke="#eab308" stroke-dasharray="4,2"/>
+          <text x="820" y="325" text-anchor="middle" font-size="9" fill="#854d0e">&#9888; RTC y OLED comparten bus I2C (SDA=A4, SCL=A5)</text>
+
+          <line x1="595" y1="200" x2="680" y2="255" stroke="#a855f7" stroke-width="2" marker-end="url(#aP)"/>
+          <text x="650" y="240" font-size="9" fill="#a855f7" font-weight="bold">SDA</text>
+          <line x1="595" y1="215" x2="680" y2="268" stroke="#a855f7" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#aP)"/>
+          <text x="650" y="268" font-size="9" fill="#a855f7" font-weight="bold">SCL</text>
+
+          <!-- ── NEOPIXEL ── -->
+          <rect x="330" y="340" width="200" height="100" rx="10" fill="#fff7ed" stroke="#f97316" stroke-width="2" filter="url(#sh)"/>
+          <text x="430" y="365" text-anchor="middle" font-size="12" font-weight="bold" fill="#9a3412">&#128161; NEOPIXEL WS2812B</text>
+          <text x="430" y="382" text-anchor="middle" font-size="10" fill="#c2410c">7 LEDs RGB direccionables</text>
+          <circle cx="355" cy="408" r="9" fill="#fed7aa" stroke="#ea580c" stroke-width="1.5"/>
+          <text x="355" y="412" text-anchor="middle" font-size="8" fill="#7c2d12" font-weight="bold">1</text>
+          <circle cx="380" cy="420" r="9" fill="#fed7aa" stroke="#ea580c" stroke-width="1.5"/>
+          <text x="380" y="424" text-anchor="middle" font-size="8" fill="#7c2d12" font-weight="bold">2</text>
+          <circle cx="405" cy="426" r="9" fill="#fed7aa" stroke="#ea580c" stroke-width="1.5"/>
+          <text x="405" y="430" text-anchor="middle" font-size="8" fill="#7c2d12" font-weight="bold">3</text>
+          <circle cx="430" cy="428" r="9" fill="#fb923c" stroke="#ea580c" stroke-width="1.5"/>
+          <text x="430" y="432" text-anchor="middle" font-size="8" fill="#7c2d12" font-weight="bold">4</text>
+          <circle cx="455" cy="426" r="9" fill="#fed7aa" stroke="#ea580c" stroke-width="1.5"/>
+          <text x="455" y="430" text-anchor="middle" font-size="8" fill="#7c2d12" font-weight="bold">5</text>
+          <circle cx="480" cy="420" r="9" fill="#fed7aa" stroke="#ea580c" stroke-width="1.5"/>
+          <text x="480" y="424" text-anchor="middle" font-size="8" fill="#7c2d12" font-weight="bold">6</text>
+          <circle cx="505" cy="408" r="9" fill="#fed7aa" stroke="#ea580c" stroke-width="1.5"/>
+          <text x="505" y="412" text-anchor="middle" font-size="8" fill="#7c2d12" font-weight="bold">7</text>
+          <text x="430" y="445" text-anchor="middle" font-size="8" fill="#9a3412">DIN → Pin D8</text>
+
+          <line x1="400" y1="290" x2="400" y2="340" stroke="#f97316" stroke-width="2" marker-end="url(#aO)"/>
+          <text x="408" y="320" font-size="9" fill="#f97316" font-weight="bold">D8</text>
+
+          <!-- ── BUZZER ── -->
+          <rect x="560" y="340" width="170" height="100" rx="10" fill="#fef2f2" stroke="#ef4444" stroke-width="2" filter="url(#sh)"/>
+          <text x="645" y="365" text-anchor="middle" font-size="12" font-weight="bold" fill="#991b1b">&#128266; BUZZER ACTIVO</text>
+          <text x="645" y="382" text-anchor="middle" font-size="10" fill="#b91c1c">Zumbador piezoeléctrico</text>
+          <circle cx="625" cy="415" r="14" fill="#fee2e2" stroke="#f87171" stroke-width="2"/>
+          <text x="625" y="419" text-anchor="middle" font-size="9" fill="#dc2626" font-weight="bold">BZ</text>
+          <text x="665" y="419" text-anchor="middle" font-size="9" fill="#991b1b">Pin D7</text>
+
+          <line x1="455" y1="290" x2="455" y2="310" stroke="#ef4444" stroke-width="2"/>
+          <line x1="455" y1="310" x2="645" y2="310" stroke="#ef4444" stroke-width="2"/>
+          <line x1="645" y1="310" x2="645" y2="340" stroke="#ef4444" stroke-width="2" marker-end="url(#aO)"/>
+          <text x="550" y="305" font-size="9" fill="#ef4444" font-weight="bold">D7</text>
+
+          <!-- ── BOTONES ── -->
+          <rect x="30" y="360" width="270" height="130" rx="10" fill="#f0fdfa" stroke="#14b8a6" stroke-width="2" filter="url(#sh)"/>
+          <text x="165" y="385" text-anchor="middle" font-size="12" font-weight="bold" fill="#134e4a">&#128421; 3 BOTONES (5V)</text>
+          <text x="165" y="400" text-anchor="middle" font-size="10" fill="#115e59">Botones normales 5V con pull-down</text>
+          <rect x="50" y="410" width="70" height="28" rx="5" fill="#ccfbf1" stroke="#5eead4"/>
+          <text x="85" y="428" text-anchor="middle" font-size="10" fill="#134e4a" font-weight="bold">DN (D2)</text>
+          <rect x="130" y="410" width="70" height="28" rx="5" fill="#ccfbf1" stroke="#5eead4"/>
+          <text x="165" y="428" text-anchor="middle" font-size="10" fill="#134e4a" font-weight="bold">UP (D3)</text>
+          <rect x="210" y="410" width="70" height="28" rx="5" fill="#ccfbf1" stroke="#5eead4"/>
+          <text x="245" y="428" text-anchor="middle" font-size="10" fill="#134e4a" font-weight="bold">OK (D5)</text>
+          <text x="165" y="462" text-anchor="middle" font-size="9" fill="#115e59">Activos en HIGH — Resistencia pull-down externa</text>
+          <text x="165" y="477" text-anchor="middle" font-size="9" fill="#115e59">Debounce: 60ms | Anti-rebote por software</text>
+
+          <!-- Líneas Botones → Arduino -->
+          <line x1="85" y1="360" x2="85" y2="335" stroke="#14b8a6" stroke-width="2"/>
+          <line x1="85" y1="335" x2="345" y2="136" stroke="#14b8a6" stroke-width="2" marker-end="url(#aG)"/>
+          <text x="200" y="238" font-size="9" fill="#14b8a6" font-weight="bold">D2</text>
+          <line x1="165" y1="360" x2="165" y2="330" stroke="#14b8a6" stroke-width="2"/>
+          <line x1="165" y1="330" x2="345" y2="163" stroke="#14b8a6" stroke-width="2" marker-end="url(#aG)"/>
+          <text x="230" y="250" font-size="9" fill="#14b8a6" font-weight="bold">D3</text>
+          <line x1="245" y1="360" x2="245" y2="325" stroke="#14b8a6" stroke-width="2"/>
+          <line x1="245" y1="325" x2="345" y2="190" stroke="#14b8a6" stroke-width="2" marker-end="url(#aG)"/>
+          <text x="265" y="260" font-size="9" fill="#14b8a6" font-weight="bold">D5</text>
+
+          <!-- ── GND COMÚN ── -->
+          <line x1="438" y1="295" x2="438" y2="520" stroke="#171717" stroke-width="2.5"/>
+          <line x1="130" y1="315" x2="130" y2="520" stroke="#171717" stroke-width="2.5"/>
+          <line x1="130" y1="520" x2="920" y2="520" stroke="#171717" stroke-width="2.5" stroke-dasharray="8,4"/>
+          <line x1="728" y1="164" x2="728" y2="520" stroke="#171717" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <line x1="793" y1="164" x2="793" y2="520" stroke="#171717" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <line x1="430" y1="445" x2="430" y2="520" stroke="#171717" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <line x1="645" y1="440" x2="645" y2="520" stroke="#171717" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <line x1="165" y1="490" x2="165" y2="520" stroke="#171717" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <rect x="470" y="510" width="80" height="20" rx="4" fill="#171717" opacity=".1" stroke="#171717"/>
+          <text x="510" y="524" text-anchor="middle" font-size="10" fill="#171717" font-weight="bold">GND COMÚN</text>
+
+          <!-- ── TABLA ── -->
+          <rect x="30" y="550" width="940" height="155" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5" filter="url(#sh)"/>
+          <text x="500" y="575" text-anchor="middle" font-size="13" font-weight="bold" fill="#0f172a">&#128203; TABLA DE CONEXIONES</text>
+          <text x="80" y="600" text-anchor="middle" font-size="10" font-weight="bold" fill="#475569">COMPONENTE</text>
+          <text x="310" y="600" text-anchor="middle" font-size="10" font-weight="bold" fill="#475569">PIN ARDUINO</text>
+          <text x="530" y="600" text-anchor="middle" font-size="10" font-weight="bold" fill="#475569">SEÑAL</text>
+          <text x="720" y="600" text-anchor="middle" font-size="10" font-weight="bold" fill="#475569">VOLTAJE</text>
+          <text x="880" y="600" text-anchor="middle" font-size="10" font-weight="bold" fill="#475569">NOTA</text>
+          <line x1="50" y1="607" x2="950" y2="607" stroke="#cbd5e1"/>
+
+          <!-- Rows -->
+          <g>
+            <rect x="50" y="614" width="900" height="14" fill="#f1f5f9" rx="2"/>
+            <text x="80" y="625" text-anchor="middle" font-size="9" fill="#334155">Botón DN</text>
+            <text x="310" y="625" text-anchor="middle" font-size="9" fill="#0ea5e9" font-weight="bold">D2</text>
+            <text x="530" y="625" text-anchor="middle" font-size="9" fill="#334155">Digital IN</text>
+            <text x="720" y="625" text-anchor="middle" font-size="9" fill="#334155">5V</text>
+            <text x="880" y="625" text-anchor="middle" font-size="9" fill="#64748b">Pull-down externo</text>
+          </g>
+          <g>
+            <rect x="50" y="630" width="900" height="14" fill="#fff" rx="2"/>
+            <text x="80" y="641" text-anchor="middle" font-size="9" fill="#334155">Botón UP</text>
+            <text x="310" y="641" text-anchor="middle" font-size="9" fill="#0ea5e9" font-weight="bold">D3</text>
+            <text x="530" y="641" text-anchor="middle" font-size="9" fill="#334155">Digital IN</text>
+            <text x="720" y="641" text-anchor="middle" font-size="9" fill="#334155">5V</text>
+            <text x="880" y="641" text-anchor="middle" font-size="9" fill="#64748b">Pull-down externo</text>
+          </g>
+          <g>
+            <rect x="50" y="646" width="900" height="14" fill="#f1f5f9" rx="2"/>
+            <text x="80" y="657" text-anchor="middle" font-size="9" fill="#334155">Botón OK</text>
+            <text x="310" y="657" text-anchor="middle" font-size="9" fill="#0ea5e9" font-weight="bold">D5</text>
+            <text x="530" y="657" text-anchor="middle" font-size="9" fill="#334155">Digital IN</text>
+            <text x="720" y="657" text-anchor="middle" font-size="9" fill="#334155">5V</text>
+            <text x="880" y="657" text-anchor="middle" font-size="9" fill="#64748b">Pull-down externo</text>
+          </g>
+          <g>
+            <rect x="50" y="662" width="900" height="14" fill="#fff" rx="2"/>
+            <text x="80" y="673" text-anchor="middle" font-size="9" fill="#334155">Buzzer</text>
+            <text x="310" y="673" text-anchor="middle" font-size="9" fill="#0ea5e9" font-weight="bold">D7</text>
+            <text x="530" y="673" text-anchor="middle" font-size="9" fill="#334155">Digital OUT</text>
+            <text x="720" y="673" text-anchor="middle" font-size="9" fill="#334155">5V</text>
+            <text x="880" y="673" text-anchor="middle" font-size="9" fill="#64748b">Activo con tone()</text>
+          </g>
+          <g>
+            <rect x="50" y="678" width="900" height="14" fill="#f1f5f9" rx="2"/>
+            <text x="80" y="689" text-anchor="middle" font-size="9" fill="#334155">NeoPixel DIN</text>
+            <text x="310" y="689" text-anchor="middle" font-size="9" fill="#0ea5e9" font-weight="bold">D8</text>
+            <text x="530" y="689" text-anchor="middle" font-size="9" fill="#334155">Digital OUT</text>
+            <text x="720" y="689" text-anchor="middle" font-size="9" fill="#334155">5V</text>
+            <text x="880" y="689" text-anchor="middle" font-size="9" fill="#64748b">700mA pico</text>
+          </g>
+          <g>
+            <rect x="50" y="694" width="900" height="14" fill="#fff" rx="2"/>
+            <text x="80" y="705" text-anchor="middle" font-size="9" fill="#334155">RTC + OLED (SDA)</text>
+            <text x="310" y="705" text-anchor="middle" font-size="9" fill="#0ea5e9" font-weight="bold">A4</text>
+            <text x="530" y="705" text-anchor="middle" font-size="9" fill="#334155">I2C Data</text>
+            <text x="720" y="705" text-anchor="middle" font-size="9" fill="#334155">3.3V/5V</text>
+            <text x="880" y="705" text-anchor="middle" font-size="9" fill="#64748b">Bus compartido</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════ TAB 2 : COMPONENTES ══════ -->
+  <div id="tab-componentes" class="tab-panel">
+    <div class="comp-grid">
+
+      <div class="comp-card">
+        <div class="comp-head">
+          <div class="comp-icon" style="background:#dbeafe;">&#128187;</div>
+          <h3>Arduino Pro Mini</h3>
+        </div>
+        <p>Microcontrolador principal basado en ATmega328P. Es el cerebro del sistema, ejecuta el firmware que controla alarmas, pantalla, LEDs y buzzer.</p>
+        <div class="spec"><span class="dot">&#9679;</span> ATmega328P a 16 MHz</div>
+        <div class="spec"><span class="dot">&#9679;</span> 14 pines digitales (6 PWM), 6 analógicos</div>
+        <div class="spec"><span class="dot">&#9679;</span> 32 KB Flash, 2 KB SRAM, 1 KB EEPROM</div>
+        <div class="spec"><span class="dot">&#9679;</span> Pines usados: D2, D3, D5, D7, D8, A4, A5</div>
+        <div class="spec"><span class="dot">&#9679;</span> Voltaje operativo: 5V (versión 5V)</div>
+        <div class="spec"><span class="dot">&#9679;</span> Consumo: ~20 mA (activo) / ~10 µA (sleep)</div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-head">
+          <div class="comp-icon" style="background:#dcfce7;">&#128339;</div>
+          <h3>RTC DS3231</h3>
+        </div>
+        <p>Reloj de tiempo real con cristal de cuarzo interno de alta precisión. Mantiene la hora exacta incluso si el Arduino se reinicia. Fundamental para la precisión de las 7 alarmas.</p>
+        <div class="spec"><span class="dot">&#9679;</span> Protocolo: I2C (dirección 0x68)</div>
+        <div class="spec"><span class="dot">&#9679;</span> Precisión: ±2 ppm (±1 min/año)</div>
+        <div class="spec"><span class="dot">&#9679;</span> Cristal TCXO integrado</div>
+        <div class="spec"><span class="dot">&#9679;</span> Batería respaldo CR2032 incluida</div>
+        <div class="spec"><span class="dot">&#9679;</span> EEPROM: 256 bytes</div>
+        <div class="spec"><span class="dot">&#9679;</span> Pines: VCC, GND, SDA, SQW/INT</div>
+        <div class="spec"><span class="dot">&#9679;</span> Conectado a: A4 (SDA), A5 (SCL)</div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-head">
+          <div class="comp-icon" style="background:#f3e8ff;">&#128250;</div>
+          <h3>OLED 0.96&quot; SSD1306</h3>
+        </div>
+        <p>Pantalla monocromática 128×64 conectada por I2C. Muestra hora, fecha, menús de configuración, estado de alarmas y alertas visuales con alto contraste.</p>
+        <div class="spec"><span class="dot">&#9679;</span> Resolución: 128 x 64 píxeles</div>
+        <div class="spec"><span class="dot">&#9679;</span> Protocolo: I2C (dirección 0x3C)</div>
+        <div class="spec"><span class="dot">&#9679;</span> Driver: SSD1306</div>
+        <div class="spec"><span class="dot">&#9679;</span> Cableado: 40 dupont (solo 4 usados)</div>
+        <div class="spec"><span class="dot">&#9679;</span> Librería: U8x8 (U8g2)</div>
+        <div class="spec"><span class="dot">&#9679;</span> Bus I2C compartido con RTC DS3231</div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-head">
+          <div class="comp-icon" style="background:#fff7ed;">&#128161;</div>
+          <h3>NeoPixel WS2812B</h3>
+        </div>
+        <p>Tira de 7 LEDs RGB direccionables individualmente. Cada LED se asigna a una alarma diferente, parpadeando en naranja para indicar qué pastilla tomar.</p>
+        <div class="spec"><span class="dot">&#9679;</span> Tipo: WS2812B (direccionable individual)</div>
+        <div class="spec"><span class="dot">&#9679;</span> 7 LEDs (1 por alarma)</div>
+        <div class="spec"><span class="dot">&#9679;</span> Colores: 16.7 millones (RGB 24-bit)</div>
+        <div class="spec"><span class="dot">&#9679;</span> Pin de datos: D8</div>
+        <div class="spec"><span class="dot">&#9679;</span> Consumo máximo: ~700 mA (todos blancos)</div>
+        <div class="spec"><span class="dot">&#9679;</span> Brillo configurado al 55% en firmware</div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-head">
+          <div class="comp-icon" style="background:#fef2f2;">&#128266;</div>
+          <h3>Buzzer Piezoeléctrico</h3>
+        </div>
+        <p>Zumbador activo que emite alertas sonoras con melodía ascendente (880Hz, 988Hz, 1047Hz) sin usar delay(), permitiendo respuesta a botones durante la alerta.</p>
+        <div class="spec"><span class="dot">&#9679;</span> Tipo: Activo (tono con señal DC)</div>
+        <div class="spec"><span class="dot">&#9679;</span> Pin de control: D7</div>
+        <div class="spec"><span class="dot">&#9679;</span> Frecuencias: 880Hz, 988Hz, 1047Hz</div>
+        <div class="spec"><span class="dot">&#9679;</span> 10 ciclos de 30s on + 30s off</div>
+        <div class="spec"><span class="dot">&#9679;</span> Duración máxima: ~10 minutos</div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-head">
+          <div class="comp-icon" style="background:#ccfbf1;">&#128421;</div>
+          <h3>3 Botones + Switch</h3>
+        </div>
+        <p>Tres botones normales 5V con debounce por software de 60ms. El switch de encendido corta la energía completamente cuando no se necesita el pastillero.</p>
+        <div class="spec"><span class="dot">&#9679;</span> Botón DN (abajo): Pin D2</div>
+        <div class="spec"><span class="dot">&#9679;</span> Botón UP (arriba): Pin D3</div>
+        <div class="spec"><span class="dot">&#9679;</span> Botón OK (confirmar): Pin D5</div>
+        <div class="spec"><span class="dot">&#9679;</span> Debounce por software: 60 ms</div>
+        <div class="spec"><span class="dot">&#9679;</span> Configuración: INPUT con pull-down externo</div>
+        <div class="spec"><span class="dot">&#9679;</span> Interfaz completa con solo 3 botones</div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-head">
+          <div class="comp-icon" style="background:#fef3c7;">&#128268;</div>
+          <h3>Módulo de Conexión (Fuente)</h3>
+        </div>
+        <p>Módulo que proporciona 3.3V y 5V según la necesidad de cada componente. Conectado a corriente alterna mediante adaptador USB para alimentación ininterrumpida.</p>
+        <div class="spec"><span class="dot">&#9679;</span> Salidas duales: 5V y 3.3V</div>
+        <div class="spec"><span class="dot">&#9679;</span> 5V: Arduino, NeoPixel, Buzzer</div>
+        <div class="spec"><span class="dot">&#9679;</span> 3.3V: Referencia I2C (si necesario)</div>
+        <div class="spec"><span class="dot">&#9679;</span> Entrada: USB (5V DC estable)</div>
+        <div class="spec"><span class="dot">&#9679;</span> Regulador integrado para voltaje limpio</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════ TAB 3 : ENERGÍA ══════ -->
+  <div id="tab-energia" class="tab-panel">
+    <div class="energy-hero">
+      <div class="card-title" style="color:#134e4a;">&#9889; Por qué se eligió energía constante en vez de baterías</div>
+      <div class="card-sub" style="color:#115e59;">Análisis de la decisión de diseño más importante del proyecto Salux</div>
+
+      <div class="energy-grid">
+        <div class="energy-box pro">
+          <h3 style="color:#0f766e;">&#9989; Energía Constante (Elegida)</h3>
+          <ul>
+            <li><strong>1. Funcionamiento 24/7 sin interrupciones:</strong>
+              <p>Un pastillero electrónico debe estar siempre activo. Las alarmas médicas no admiten tiempos muertos. Con alimentación constante, el RTC DS3231, la pantalla OLED y el Arduino funcionan continuamente sin riesgo de apagado inesperado. Un dispositivo médico no puede fallar porque &quot;se acabó la batería&quot;.</p>
+            </li>
+            <li><strong>2. Voltaje estable para componentes sensibles:</strong>
+              <p>La pantalla OLED SSD1306, el bus I2C y los LEDs NeoPixel requieren voltajes estables. Las baterías entregan un voltaje decreciente que causa glitches en I2C, flickering en pantalla o colores incorrectos en NeoPixels. El módulo garantiza exactamente 5V y 3.3V constantes.</p>
+            </li>
+            <li><strong>3. Consumo elevado de NeoPixel + OLED:</strong>
+              <p>Los 7 LEDs NeoPixel pueden consumir hasta 700 mA a brillo máximo. Sumando OLED (~20 mA), buzzer (~30 mA) y Arduino (~20 mA), el consumo pico supera 750 mA. Ninguna batería pequeña duraría más de unas horas con las alarmas activas.</p>
+            </li>
+            <li><strong>4. Simplicidad del circuito:</strong>
+              <p>Sin necesidad de circuitos de carga, reguladores step-up/step-down, protección contra sobrecarga, ni gestión BMS. El circuito es más simple, confiable y fácil de diagnosticar.</p>
+            </li>
+            <li><strong>5. Costo de mantenimiento nulo:</strong>
+              <p>No hay baterías que reemplazar. En un dispositivo de uso diario durante años, el costo acumulado de baterías sería significativo. Energía constante = enchufar y olvidar.</p>
+            </li>
+          </ul>
+        </div>
+
+        <div class="energy-box con">
+          <h3 style="color:#991b1b;">&#10060; Baterías (Descartadas)</h3>
+          <ul>
+            <li><strong>Duración insuficiente:</strong>
+              <p>Con consumo típico de ~150 mA (pantalla + Arduino + RTC permanentes) y picos de 750+ mA (alarmas con LEDs), una batería 18650 de 2500 mAh duraría apenas 6-16 horas. Para 24/7/365 no son viables.</p>
+            </li>
+            <li><strong>Riesgo de falla crítica:</strong>
+              <p>Si la batería se agota durante la noche, el usuario podría perderse una dosis de medicamento. En un dispositivo médico, una falla de alimentación puede tener consecuencias graves para la salud.</p>
+            </li>
+            <li><strong>Problemas de voltaje:</strong>
+              <p>A medida que una batería se descarga, su voltaje disminuye. Los NeoPixels son especialmente sensibles: por debajo de 4V los colores se desfasan, y el I2C puede fallar.</p>
+            </li>
+            <li><strong>Mayor complejidad hardware:</strong>
+              <p>Se necesitaría circuito de carga (TP4056), protección BMS, reguladores step-up, diodos, y gestión de energía. Todo incrementa tamaño, costo y puntos de falla.</p>
+            </li>
+            <li><strong>Mantenimiento continuo:</strong>
+              <p>El usuario tendría que recordar cargar o reemplazar baterías, contradiciendo el propósito del pastillero: ayudar a alguien que ya tiene dificultades para recordar su medicación.</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="energy-conclusion">
+        <h3>Conclusión del diseño</h3>
+        <p>El Salux está diseñado como un <strong>aparato de escritorio o mesita de noche permanente</strong>, conectado a la corriente eléctrica. La alimentación constante garantiza que las 7 alarmas funcionen con absoluta precisión las 24 horas del día, los 365 días del año, sin intervención del usuario. El switch permite apagarlo completamente cuando no se necesita (durante un viaje), manteniendo la simplicidad y confiabilidad que un dispositivo médico requiere. Esta decisión prioriza la <strong>seguridad del paciente</strong> sobre la portabilidad.</p>
+      </div>
+    </div>
+
+    <!-- Tabla comparativa -->
+    <div class="card">
+      <div class="card-title">Comparativa técnica</div>
+      <table class="cmp">
+        <thead>
+          <tr>
+            <th>Característica</th>
+            <th>Energía Constante &#9989;</th>
+            <th>Baterías &#10060;</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Autonomía</strong></td><td>Ilimitada (enchufado)</td><td>6-16 horas máximo</td></tr>
+          <tr><td><strong>Confiabilidad</strong></td><td>99.99%</td><td>Depende del nivel de carga</td></tr>
+          <tr><td><strong>Voltaje</strong></td><td>Estable (5V / 3.3V)</td><td>Decreciente (4.2V → 3.0V)</td></tr>
+          <tr><td><strong>Mantenimiento</strong></td><td>Ninguno</td><td>Carga / reemplazo periódico</td></tr>
+          <tr><td><strong>Costo anual</strong></td><td>~$0 (electricidad mínima)</td><td>~$30-80 (baterías)</td></tr>
+          <tr><td><strong>Complejidad circuito</strong></td><td>Baja (módulo directo)</td><td>Alta (BMS + cargador)</td></tr>
+          <tr><td><strong>Riesgo falla alarma</strong></td><td>Prácticamente nulo</td><td>Alto si batería baja</td></tr>
+          <tr><td><strong>NeoPixel 700mA</strong></td><td>Soportado fácilmente</td><td>Agota batería rápido</td></tr>
+          <tr><td><strong>Portabilidad</strong></td><td>No (escritorio)</td><td>Sí</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════ TAB 4 : CÓDIGO ══════ -->
+  <div id="tab-codigo" class="tab-panel">
+    <div class="card">
+      <div class="card-title">&#128190; Estructura del Firmware v9.3</div>
+      <div class="card-sub">Resumen de la arquitectura del código: estados, librerías y funciones principales</div>
+
+      <h3 style="font-size:.95rem;font-weight:600;margin-bottom:.7rem;">Librerías utilizadas</h3>
+      <div class="lib-grid">
+        <div class="lib-card"><code>Wire.h</code><p>Comunicación I2C para RTC y OLED</p></div>
+        <div class="lib-card"><code>EEPROM.h</code><p>Almacenamiento no volátil de configuración</p></div>
+        <div class="lib-card"><code>U8x8lib.h</code><p>Control de pantalla OLED SSD1306 (texto)</p></div>
+        <div class="lib-card"><code>RTClib.h</code><p>Lectura/escritura del reloj DS3231</p></div>
+        <div class="lib-card"><code>Adafruit_NeoPixel.h</code><p>Control de LEDs WS2812B direccionables</p></div>
+      </div>
+
+      <hr class="sep">
+
+      <h3 style="font-size:.95rem;font-weight:600;margin-bottom:.7rem;">Máquina de estados (FSM)</h3>
+      <p style="font-size:.84rem;color:#64748b;margin-bottom:.75rem;">El firmware opera como una máquina de estados finitos. Cada estado controla una pantalla diferente y responde a los 3 botones según el contexto actual.</p>
+      <div class="state-grid">
+        <div class="state-card"><code>ST_SPLASH</code><p>Pantalla de inicio (3 seg)</p></div>
+        <div class="state-card"><code>ST_RELOJ</code><p>Reloj principal con hora y fecha</p></div>
+        <div class="state-card"><code>ST_MENU</code><p>Menú de configuración (11 opciones)</p></div>
+        <div class="state-card"><code>ST_FECHA</code><p>Configuración de fecha (DD/MM/AAAA)</p></div>
+        <div class="state-card"><code>ST_HORA</code><p>Configuración de hora (HH:MM:SS)</p></div>
+        <div class="state-card"><code>ST_ALARMA</code><p>Configuración de alarma (ON/OFF, H, M, LED, Días)</p></div>
+        <div class="state-card"><code>ST_FMT</code><p>Formato 12h / 24h</p></div>
+        <div class="state-card"><code>ST_ALM_ON</code><p>Alarma sonando (alerta visual + sonora)</p></div>
+        <div class="state-card"><code>ST_DIAS</code><p>Selección de días de la semana por alarma</p></div>
+      </div>
+
+      <hr class="sep">
+
+      <h3 style="font-size:.95rem;font-weight:600;margin-bottom:.7rem;">Características del firmware</h3>
+
+      <div class="acc-item">
+        <button class="acc-btn" onclick="toggleAcc(this)">7 Alarmas configurables</button>
+        <div class="acc-body"><div class="acc-body-inner">
+          Cada alarma permite configurar: hora, minuto, estado ON/OFF, LED asignado (1-7) y días de la semana activos (bitmask de 7 bits, uno por día). Las alarmas se verifican cada ciclo del loop cuando el sistema está en estado ST_RELOJ y no hay alarma sonando. Se incluye un sistema de bloqueo de 1 minuto para evitar activaciones repetitivas.
+        </div></div>
+      </div>
+
+      <div class="acc-item">
+        <button class="acc-btn" onclick="toggleAcc(this)">Melodía no bloqueante</button>
+        <div class="acc-body"><div class="acc-body-inner">
+          La melodía de alarma usa un sistema basado en millis() que no bloquea la ejecución. Patrón: BIP(880Hz, 120ms), silencio(80ms), BIP(988Hz, 120ms), silencio(80ms), BIP(1047Hz, 180ms), silencio(600ms), repite. 2 fases de 30 segundos (sonido + silencio), hasta 10 ciclos (~10 min máx). Se silencia con cualquier botón.
+        </div></div>
+      </div>
+
+      <div class="acc-item">
+        <button class="acc-btn" onclick="toggleAcc(this)">Actualización eficiente de pantalla</button>
+        <div class="acc-body"><div class="acc-body-inner">
+          La pantalla OLED se actualiza de forma diferencial: solo se redibujan los caracteres que cambiaron (horas, minutos, segundos). Esto reduce el parpadeo y mejora la eficiencia. La hora se muestra con fuente grande (21px) en las filas centrales, la fecha y día en la parte superior, y los segundos en la parte inferior. Soporta formato 12h/24h configurable.
+        </div></div>
+      </div>
+
+      <div class="acc-item">
+        <button class="acc-btn" onclick="toggleAcc(this)">Persistencia en EEPROM</button>
+        <div class="acc-body"><div class="acc-body-inner">
+          Toda la configuración (formato de hora, 7 alarmas con sus parámetros) se guarda en la EEPROM del Arduino. Al encender, el sistema verifica un byte mágico (0xC1) para validar los datos. Se usa EEPROM.update() en vez de write() para evitar desgaste innecesario de la memoria.
+        </div></div>
+      </div>
+
+      <div class="acc-item">
+        <button class="acc-btn" onclick="toggleAcc(this)">Sistema de botones con debounce</button>
+        <div class="acc-body"><div class="acc-body-inner">
+          Los 3 botones se leen con debounce por software de 60ms. La función leerBotones() detecta flancos ascendentes (LOW→HIGH) para generar un único evento por pulsación. Cada botón genera un &quot;pip&quot; audible de 25ms (1200Hz) al presionarse, excepto durante una alarma sonando.
+        </div></div>
+      </div>
+    </div>
+
+    <!-- Tabla de pines -->
+    <div class="card">
+      <div class="card-title">Mapa de pines del Arduino Pro Mini</div>
+      <table class="pin-table">
+        <thead>
+          <tr>
+            <th>Pin</th>
+            <th>Componente</th>
+            <th>Modo</th>
+            <th>Descripción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="mono">D2</td><td>Botón DN</td><td><span class="mode-badge">INPUT</span></td><td>Navegación hacia abajo en menús, decrementar valores</td></tr>
+          <tr><td class="mono">D3</td><td>Botón UP</td><td><span class="mode-badge">INPUT</span></td><td>Navegación hacia arriba en menús, incrementar valores</td></tr>
+          <tr><td class="mono">D5</td><td>Botón OK</td><td><span class="mode-badge">INPUT</span></td><td>Seleccionar, editar, confirmar opciones</td></tr>
+          <tr><td class="mono">D7</td><td>Buzzer</td><td><span class="mode-badge">OUTPUT</span></td><td>Genera tonos de alarma y pitidos de interfaz</td></tr>
+          <tr><td class="mono">D8</td><td>NeoPixel DIN</td><td><span class="mode-badge">OUTPUT</span></td><td>Datos seriales hacia la tira de 7 LEDs RGB</td></tr>
+          <tr><td class="mono">A4</td><td>RTC + OLED (SDA)</td><td><span class="mode-badge">I2C</span></td><td>Bus de datos I2C compartido entre RTC y pantalla</td></tr>
+          <tr><td class="mono">A5</td><td>RTC + OLED (SCL)</td><td><span class="mode-badge">I2C</span></td><td>Bus de reloj I2C compartido entre RTC y pantalla</td></tr>
+          <tr><td class="mono">VCC</td><td>Fuente 5V</td><td><span class="mode-badge">POWER</span></td><td>Alimentación principal vía módulo y switch</td></tr>
+          <tr><td class="mono">GND</td><td>Tierra</td><td><span class="mode-badge">GROUND</span></td><td>GND común para todos los componentes</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<footer>
+  <p><strong>SALUX — Pastillero Electrónico v9.3</strong></p>
+  <p>Proyecto de electrónica aplicada con Arduino Pro Mini</p>
+</footer>
+
+<script>
+  // Tab switching
+  function openTab(id) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+
+  // Accordion
+  function toggleAcc(btn) {
+    btn.classList.toggle('open');
+    const body = btn.nextElementSibling;
+    body.classList.toggle('open');
+  }
+</script>
+
+</body>
+</html>
